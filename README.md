@@ -10,7 +10,7 @@ This repository is the official implementation of **[GridMM: Grid Memory Map for
 
 The following will be processed within a few days:
 1) Upload code of GridMM in discrete environments(R2R,REVERIE,SOON). (Finished)
-2) Upload code of data preprocessing. (In progress)
+2) Upload code of data preprocessing. (Finished)
 3) Upload feature files and checkpoints. (In progress)
 4) Upload code of GridMM in continuous environments(R2R-CE). (In progress)
 5) Upload the document. (In progress)
