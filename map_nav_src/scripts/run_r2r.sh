@@ -40,7 +40,7 @@ flag="--root_dir ${DATA_ROOT}
       --batch_size 4
       --lr 1e-5
       --iters 20000
-      --log_every 10
+      --log_every 500
       --optim adamW
 
       --features ${features}
