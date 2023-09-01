@@ -12,5 +12,5 @@ The following will be processed within a few days:
 1) Upload code of GridMM in discrete environments(R2R,REVERIE,SOON). (Finished)
 2) Upload code of data preprocessing. (Finished)
 3) Upload feature files and checkpoints. (In progress) [Baidu Netdisk](https://pan.baidu.com/s/1jRshMRNAhIx4VtCT0Lw1DA?pwd=beya)
-4) Upload code of GridMM in continuous environments(R2R-CE). (In progress)
-5) Upload the document. (In progress)
+4) Upload code of GridMM in continuous environments(R2R-CE). (Finished)
+5) Upload the detailed documentation. (In progress)
