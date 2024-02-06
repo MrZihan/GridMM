@@ -23,7 +23,7 @@
 #       TORCH_GPU_IDS [0,1,2,3]
 #       IL.batch_size 2
 #       IL.lr 1e-5
-#       IL.epochs 100
+#       IL.epochs 30
 #       IL.schedule_ratio 0.50
 #       IL.decay_time 20
 #       "
