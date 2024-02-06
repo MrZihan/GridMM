@@ -34,12 +34,12 @@ CUDA_VISIBLE_DEVICES='4,5,6,7' python3 -m torch.distributed.launch --nproc_per_n
 #flag="--exp_name cont-cwp-gridmap-ori
 #      --run-type eval
 #      --exp-config run_GridMap.yaml
-#      SIMULATOR_GPU_IDS [0,1]
-#      TORCH_GPU_IDS [0,1]
+#      SIMULATOR_GPU_IDS [0]
+#      TORCH_GPU_IDS [0]
 #      EVAL.SPLIT val_unseen
-#	  EVAL_CKPT_PATH_DIR logs/checkpoints/cont-cwp-gridmap-ori/ckpt.12.pth
+#	  EVAL_CKPT_PATH_DIR logs/checkpoints/cont-cwp-gridmap-ori/best.pth
 #      "
-#CUDA_VISIBLE_DEVICES='4,5,6,7' python3 run.py $flag
+#CUDA_VISIBLE_DEVICES='0' python3 run.py $flag
 
 # EVAL_CKPT_PATH_DIR logs/checkpoints/cont-cwp-gridmap-ori/ckpt.12.pth  data/pretrained_models/grid_map-models/grid_map.pt  logs/checkpoints/cont-cwp-gridmap-ori/correct_best.pth
 
