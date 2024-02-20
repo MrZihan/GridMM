@@ -28,7 +28,7 @@ from vlnce_baselines.models.utils import (
     angle_feature_with_ele, dir_angle_feature_with_ele, length2mask, pad_tensors, gen_seq_masks, get_angle_fts, get_angle_feature, get_point_angle_feature, calculate_vp_rel_pos_fts, calc_position_distance,pad_tensors_wgrad)
 import math
 from PIL import Image
-from torchvision.transforms import Compose, Resize, CenterCrop, ToTensor, Normalize, RandomHorizontalFlip, RandomResizedCrop
+from torchvision.transforms import Compose, Resize, CenterCrop, ToTensor, Normalize, RandomHorizontalFlip, RandomResizedCrop, ColorJitter
 import timm
 from timm.data import resolve_data_config
 from timm.data.transforms_factory import create_transform
@@ -40,9 +40,9 @@ MAX_DIST = 25
 MAX_STEP = 20
 DATASET = 'R2R'
 
-image_global_x_db = []
-image_global_y_db = []
-image_db=[]
+#image_global_x_db = []
+#image_global_y_db = []
+#image_db=[]
 
 @baseline_registry.register_policy
 class PolicyViewSelectionGridMap(ILPolicy):
@@ -160,11 +160,36 @@ class GridMap(Net):
             ToTensor(),
             Normalize((0.48145466, 0.4578275, 0.40821073), (0.26862954, 0.26130258, 0.27577711)),
         ])
+
+        self.grid_transforms_train =  Compose([
+            RandomResizedCrop((224,224),scale=(0.8,1.0),ratio=(1.0,1.0)),
+            #ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2),  # Randomly adjust color
+            ToTensor(),
+            Normalize((0.48145466, 0.4578275, 0.40821073), (0.26862954, 0.26130258, 0.27577711)),
+        ])
+
+        #self.view_transforms =  Compose([
+        #    Resize((224,224), interpolation=Image.BICUBIC),
+         #   ToTensor(),
+        #    Normalize((0.48145466, 0.4578275, 0.40821073), (0.26862954, 0.26130258, 0.27577711)),
+        #])
         self.view_transforms =  Compose([
             Resize((224,224), interpolation=Image.BICUBIC),
             ToTensor(),
             Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
         ])
+
+        self.view_transforms_train =  Compose([
+            #Resize((224,224), interpolation=Image.BICUBIC),
+            RandomResizedCrop((224,224),scale=(0.8,1.0),ratio=(1.0,1.0)),
+            #ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2),  # Randomly adjust color
+            ToTensor(),
+            Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+        ])
+
+        self.rgb_encoder.cnn.eval()
+        self.depth_encoder.eval()
+
         batch_size = model_config.batch_size
         self.global_fts = [[] for i in range(batch_size)]
         self.global_position_x = [[] for i in range(batch_size)]
@@ -229,13 +254,12 @@ class GridMap(Net):
             headings=None,  positions=None,
             cand_rgb=None, cand_depth=None,
             cand_direction=None, cand_mask=None, candidate_lengths=None, batch_angles=None, batch_distances=None,
-            masks=None, batch_view_img_fts=None, batch_loc_fts=None, batch_nav_types=None, batch_view_lens=None, batch_grid_fts=None, batch_map_index=None, batch_gridmap_pos_fts=None,
-            post_states=None, in_train=True):
+            masks=None, batch_view_img_fts=None, batch_loc_fts=None, batch_nav_types=None, batch_view_lens=None, batch_grid_fts=None, batch_map_index=None, batch_gridmap_pos_fts=None,in_train=True):
 
 
 
         if mode == 'language':
-            
+
             language_features = self.vln_bert(
                 'language', (lang_idx_tokens,lang_masks))
 
@@ -243,16 +267,24 @@ class GridMap(Net):
 
         elif mode == 'waypoint':
             global MAX_DIST,MAX_STEP
-
-            if in_train:
-                MAX_DIST = 25
-                MAX_STEP = 20
-            else:
-                MAX_DIST = 25
-                MAX_STEP = 20
-
-            
             global DATASET
+
+            if DATASET == 'R2R':
+                if in_train:
+                    MAX_DIST = 25
+                    MAX_STEP = 20
+                else:
+                    MAX_DIST = 25
+                    MAX_STEP = 20
+
+            elif DATASET == 'RxR':
+                if in_train:
+                    MAX_DIST = 40
+                    MAX_STEP = 30
+                else:
+                    MAX_DIST = 40
+                    MAX_STEP = 30
+
             if 'instruction' in observations:
                 batch_size = observations['instruction'].size(0)
             elif 'rxr_instruction' in observations:
@@ -290,13 +322,19 @@ class GridMap(Net):
 
             image_list = [Image.fromarray(rgb_batch[img_id].cpu().numpy()) for img_id in range(rgb_batch.shape[0])]
             
-            batch_grid_fts = np.concatenate([self.grid_transforms(image).unsqueeze(0) for image in image_list], 0)
-            batch_view_fts = np.concatenate([self.view_transforms(image).unsqueeze(0) for image in image_list], 0)
+            if in_train:
+                batch_grid_fts = np.concatenate([self.grid_transforms_train(image).unsqueeze(0) for image in image_list], 0)
+                batch_view_fts = np.concatenate([self.view_transforms_train(image).unsqueeze(0) for image in image_list], 0)
+            else:
+                batch_grid_fts = np.concatenate([self.grid_transforms(image).unsqueeze(0) for image in image_list], 0)
+                batch_view_fts = np.concatenate([self.view_transforms(image).unsqueeze(0) for image in image_list], 0)
+
             batch_grid_fts = torch.tensor(batch_grid_fts).to(self.device)
             batch_view_fts = torch.tensor(batch_view_fts).to(self.device)
 
             with torch.no_grad():
                 batch_grid_fts = self.vln_bert.clip(batch_grid_fts)
+                #batch_view_fts = self.vln_bert.visual_encoder(batch_view_fts)[:,0,:]
                 batch_view_fts = self.vln_bert.visual_encoder.forward_features(batch_view_fts)[:,0,:]
 
             depth_batch = depth_batch.view(batch_size,12,depth_batch.shape[-3],depth_batch.shape[-2]).cpu().numpy()
@@ -404,7 +442,7 @@ class GridMap(Net):
                 # 2pi- becoz counter-clockwise is the positive direction
                 angle_rad_cc = 2*math.pi-angle_idxes.float()/120*2*math.pi
                 batch_angles.append(angle_rad_cc.tolist())
-
+                
                 batch_distances.append(
                     ((distance_idxes + 1)*0.25).tolist())
                 # counter-clockwise image indexes
@@ -415,8 +453,7 @@ class GridMap(Net):
                 cand_angle_fts = np.concatenate([np.expand_dims(get_angle_feature(batch_angles[j][k]),0) for k in range(len(img_idxes))], axis=0)
                 batch_cand_angle_fts.append(cand_angle_fts)
 
-            
-
+    
             ''' Extract precomputed features into variable. '''
             
             batch_view_img_fts, batch_loc_fts, batch_nav_types = [], [], []
@@ -607,7 +644,7 @@ class GridMap(Net):
         global DATASET
         depth_y = depth_map.astype(np.float32)
         if DATASET == 'R2R':
-            depth_x = depth_y * (np.array(([i/128 for i in range(-128,0)]+[i/128 for i in range(0,128)])*128,np.float32) * math.tan(math.pi/4))
+            depth_x = depth_y * (np.array(([i/128 for i in range(-128,0)]+[i/128 for i in range(0,128)])*256,np.float32) * math.tan(math.pi/4))
         elif DATASET == 'RxR':
             depth_x = depth_y * (np.array(([i/128 for i in range(-128,0)]+[i/128 for i in range(0,128)])*256,np.float32) * math.tan(math.pi * 79./360.))
         rel_x = depth_x * math.cos(angle) + depth_y * math.sin(angle)
@@ -651,48 +688,42 @@ class GridMap(Net):
 
     def getGlobalMap(self,batch_id, position, heading, depth, grid_ft,image_list):
 
-        #global image_global_x_db, image_global_y_db, image_db
+       # global image_global_x_db, image_global_y_db, image_db
         global DATASET
-        origin_image_db = []
-
         GLOBAL_WIDTH = 14
         GLOBAL_HEIGHT = 14
         i = batch_id
         viewpoint_x_list = []
         viewpoint_y_list = []
         
-        '''
-        for ix in range(12):
-            rel_x, rel_y = self.image_get_rel_position(depth[ix:ix+1,128:256].reshape(-1),ix*math.pi/6-self.headings[i])  
-            image_global_x = rel_x + position["x"]
-            image_global_y = -rel_y + position["y"]        
-            image_global_x_db.append(image_global_x)
-            image_global_y_db.append(image_global_y)
-            image = image_list[ix].resize((256,256),Image.BICUBIC)
-            origin_image_db.append(np.array(image))
-            image = np.array(image)[128:256].reshape(-1,3)
-            image_db.append(image)
 
-        test_image = np.zeros((1024, 1024, 3), dtype=np.uint8)
-        step_num = len(self.global_mask[i])
-        for item in range(len(image_db)):
-            angle = -self.headings[i] + math.pi
-            tmp_x = image_global_x_db[item] - position["x"]
-            tmp_y = image_global_y_db[item] - position["y"]
-        
-            map_x = -(tmp_x * math.cos(angle) + tmp_y * math.sin(angle))
-            map_y = tmp_y * math.cos(angle) - tmp_x * math.sin(angle)
-            test_image[((map_x+25)/(50)*1023).astype(np.int32),((map_y+25)/(50)*1023).astype(np.int32),:] = image_db[item]
+        #for ix in range(12):
+        #    rel_x, rel_y = self.image_get_rel_position(depth[ix:ix+1].reshape(-1),ix*math.pi/6-self.headings[i])  
+        #    image_global_x = rel_x + position["x"]
+        #    image_global_y = -rel_y + position["y"]        
+        #    image_global_x_db.append(image_global_x)
+        #    image_global_y_db.append(image_global_y)
+        #    image = image_list[ix].resize((256,256),Image.BICUBIC)
+        #    image = np.array(image).reshape(-1,3)
+        #    image_db.append(image)
 
+        #test_image = np.zeros((512, 512, 3), dtype=np.uint8)
+        #step_num = len(self.global_mask[i])
+        #for item in range(len(image_db)):
+        #    angle = -self.headings[i] + math.pi
+        #    tmp_x = image_global_x_db[item] - position["x"]
+        #    tmp_y = image_global_y_db[item] - position["y"]
+        #
+        #    map_x = -(tmp_x * math.cos(angle) + tmp_y * math.sin(angle))
+        #    map_y = tmp_y * math.cos(angle) - tmp_x * math.sin(angle)
+        #    test_image[((map_x+30)/(60)*511).astype(np.int32),((map_y+30)/(60)*511).astype(np.int32),:] = image_db[item]
 
+        #test_image[252:258,252:258,0] = 0
+        #test_image[252:258,252:258,1] = 0
+        #test_image[252:258,252:258,2] = 255
 
-        test_image[508:514,508:514,0] = 0
-        test_image[508:514,508:514,1] = 0
-        test_image[508:514,508:514,2] = 255
-        for item in range(-1,2):
-            cv2.imwrite('%d_%d_origin_%d.jpg' % (i, step_num,item), self.RGB_to_BGR(origin_image_db[item]))
-        cv2.imwrite('%d_%d.jpg' % (i, step_num), self.RGB_to_BGR(test_image))
-        '''
+        #cv2.imwrite('%d_%d.jpg' % (i, step_num), self.RGB_to_BGR(test_image))
+            
 
         patch_center_index = np.array([19+i*36 for i in range(7)])
 
@@ -710,6 +741,7 @@ class GridMap(Net):
             viewpoint_y_list.append(global_y)
 
         
+
         if self.global_fts[i] == []:
             self.global_fts[i] = grid_ft[:,1:].reshape((-1,768))
             self.global_map_index[i] = np.zeros((12*49,))
