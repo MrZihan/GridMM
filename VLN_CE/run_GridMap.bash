@@ -52,6 +52,6 @@ CUDA_VISIBLE_DEVICES='0' python3 run.py $flag
 #       EVAL.SAVE_RESULTS True
 #       INFERENCE.PREDICTIONS_FILE test
 #       INFERENCE.SPLIT test
-#       INFERENCE.CKPT_PATH logs/checkpoints/cont-cwp-gridmap-ori/ckpt.12.pth
+#       INFERENCE.CKPT_PATH logs/checkpoints/cont-cwp-gridmap-ori/best.pth
 #       "
 #python run.py $flag
