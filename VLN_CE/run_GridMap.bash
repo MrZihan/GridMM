@@ -41,7 +41,6 @@ flag="--exp_name cont-cwp-gridmap-ori
       "
 CUDA_VISIBLE_DEVICES='0' python3 run.py $flag
 
-# EVAL_CKPT_PATH_DIR logs/checkpoints/cont-cwp-gridmap-ori/ckpt.12.pth  data/pretrained_models/grid_map-models/grid_map.pt  logs/checkpoints/cont-cwp-gridmap-ori/correct_best.pth
 
 # # INFERENCE
 # flag="--exp_name cont-cwp-gridmap-ori
