@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-''' Script to precompute image features using a Pytorch ResNet CNN, using 36 discretized views
+''' Script to precompute depth using 36 discretized views
     at each viewpoint in 30 degree increments, and the provided camera WIDTH, HEIGHT 
     and VFOV parameters. '''
 
@@ -36,7 +36,7 @@ VIEWPOINT_SIZE = 36 # Number of discretized views from one viewpoint
 
 WIDTH = 128
 HEIGHT = 128
-VFOV = 60
+VFOV = 90
 
 
 def build_simulator(connectivity_dir, scan_dir):
