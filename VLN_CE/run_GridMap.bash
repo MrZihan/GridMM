@@ -37,7 +37,7 @@ flag="--exp_name cont-cwp-gridmap-ori
       SIMULATOR_GPU_IDS [0]
       TORCH_GPU_IDS [0]
       EVAL.SPLIT val_unseen
-	  EVAL_CKPT_PATH_DIR logs/checkpoints/cont-cwp-gridmap-ori/best.pth
+      EVAL_CKPT_PATH_DIR logs/checkpoints/cont-cwp-gridmap-ori/best.pth
       "
 CUDA_VISIBLE_DEVICES='0' python3 run.py $flag
 
