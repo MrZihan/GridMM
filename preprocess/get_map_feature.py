@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-''' Script to precompute image features using a Pytorch ResNet CNN, using 36 discretized views
+''' Script to precompute map features using the CLIP-ViT-B/32 model, using 12 discretized horizontal views
     at each viewpoint in 30 degree increments, and the provided camera WIDTH, HEIGHT 
     and VFOV parameters. '''
 
