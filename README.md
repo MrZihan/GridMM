@@ -8,9 +8,61 @@ This repository is the official implementation of **[GridMM: Grid Memory Map for
 
 ![image](https://github.com/MrZihan/GridMM/blob/main/demo.gif)
 
-The following will be processed within a few days:
-1) Upload code of GridMM in discrete environments(R2R,REVERIE,SOON). (Finished)
-2) Upload code of data preprocessing. (Finished)
-3) Upload feature files and checkpoints. (Finished) [Baidu Netdisk](https://pan.baidu.com/s/1jRshMRNAhIx4VtCT0Lw1DA?pwd=beya)
-4) Upload code of GridMM in continuous environments(R2R-CE). (Finished)
-5) Upload the detailed documentation. (In progress)
+
+## Requirements
+
+1. Install Matterport3D simulator for `R2R`, `REVERIE` and `SOON`: follow instructions [here](https://github.com/peteanderson80/Matterport3DSimulator).
+```
+export PYTHONPATH=Matterport3DSimulator/build:$PYTHONPATH
+```
+
+2. Install requirements:
+```setup
+conda create --name GridMM python=3.8.0
+conda activate GridMM
+pip install -r requirements.txt
+```
+
+3. Download annotations, preprocessed features, and trained models from [Baidu Netdisk](https://pan.baidu.com/s/1jRshMRNAhIx4VtCT0Lw1DA?pwd=beya).
+
+4. Install Habitat simulator for `R2R-CE`: follow instructions [here](https://github.com/YicongHong/Discrete-Continuous-VLN) and [here](https://github.com/jacobkrantz/VLN-CE).
+
+
+## Pretraining
+
+Combine behavior cloning and auxiliary proxy tasks in pretraining:
+```pretrain
+cd pretrain_src
+bash run_r2r.sh # (run_reverie.sh, run_soon.sh)
+```
+
+## Fine-tuning & Evaluation for `R2R`, `REVERIE` and `SOON`
+
+Use pseudo interative demonstrator to fine-tune the model:
+```finetune
+cd map_nav_src
+bash scripts/run_r2r.sh # (run_reverie.sh, run_soon.sh)
+```
+
+## Fine-tuning & Evaluation for `R2R-CE`
+
+Use pseudo interative demonstrator to fine-tune the model:
+```finetune
+cd VLN_CE
+bash run_GridMap.bash  # Currently, this code only supports evaluation with a single GPU.
+```
+
+## Citation
+
+```bibtex
+@inproceedings{wang2023gridmm,
+  title={Gridmm: Grid memory map for vision-and-language navigation},
+  author={Wang, Zihan and Li, Xiangyang and Yang, Jiahao and Liu, Yeqi and Jiang, Shuqiang},
+  booktitle={Proceedings of the IEEE/CVF International Conference on Computer Vision},
+  pages={15625--15636},
+  year={2023}
+}
+  ```
+
+## Acknowledgments
+Our code is based on [VLN-DUET](https://github.com/cshizhe/VLN-DUET) and [CWP](https://github.com/YicongHong/Discrete-Continuous-VLN). Thanks for their great works!
