@@ -27,7 +27,7 @@
 #       IL.schedule_ratio 0.50
 #       IL.decay_time 20
 #       "
-#CUDA_VISIBLE_DEVICES='6,7' python3 -m torch.distributed.launch --nproc_per_node=2 --master_port=29503 run.py $flag
+#CUDA_VISIBLE_DEVICES='0,1' python3 -m torch.distributed.launch --nproc_per_node=2 --master_port=29503 run.py $flag
 
 
 # # EVALUATION
