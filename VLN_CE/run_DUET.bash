@@ -41,7 +41,6 @@ flag="--exp_name cont-cwp-duet-ori
       EVAL_CKPT_PATH_DIR data/pretrained_models/duet-models/duet_ft.pt
       "
 python3 run.py $flag
-#logs/checkpoints/cont-cwp-duet-ori/ckpt.11.pth
 
 # # INFERENCE
 # flag="--exp_name cont-cwp-duet-ori
