@@ -36,7 +36,7 @@ VIEWPOINT_SIZE = 36 # Number of discretized views from one viewpoint
 
 WIDTH = 128
 HEIGHT = 128
-VFOV = 90
+VFOV = 60
 
 
 def build_simulator(connectivity_dir, scan_dir):
