@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 
-''' Script to precompute image features using a Pytorch ResNet CNN, using 36 discretized views
-    at each viewpoint in 30 degree increments, and the provided camera WIDTH, HEIGHT 
-    and VFOV parameters. '''
+''' Script to precompute viewpoint information. '''
 
 import os
 import sys
