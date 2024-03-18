@@ -1,6 +1,6 @@
-# GridMM: Grid Memory Map for Vision-and-Language Navigation
+## GridMM: Grid Memory Map for Vision-and-Language Navigation
 
-### Zihan Wang and Xiangyang Li and Jiahao Yang and Yeqi Liu and Shuqiang Jiang
+#### Zihan Wang and Xiangyang Li and Jiahao Yang and Yeqi Liu and Shuqiang Jiang
 
 This repository is the official implementation of **[GridMM: Grid Memory Map for Vision-and-Language Navigation](https://arxiv.org/abs/2307.12907).**
 
