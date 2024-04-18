@@ -162,8 +162,8 @@ class GridMap(Net):
         ])
 
         self.grid_transforms_train =  Compose([
-            RandomResizedCrop((224,224),scale=(0.6,1.0),ratio=(1.0,1.0)),
-            ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2),  # Randomly adjust color
+            #RandomResizedCrop((224,224),scale=(0.6,1.0),ratio=(1.0,1.0)),
+            #ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2),  # Randomly adjust color
             ToTensor(),
             Normalize((0.48145466, 0.4578275, 0.40821073), (0.26862954, 0.26130258, 0.27577711)),
         ])
@@ -181,8 +181,8 @@ class GridMap(Net):
 
         self.view_transforms_train =  Compose([
             #Resize((224,224), interpolation=Image.BICUBIC),
-            RandomResizedCrop((224,224),scale=(0.6,1.0),ratio=(1.0,1.0)),
-            ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2),  # Randomly adjust color
+            #RandomResizedCrop((224,224),scale=(0.6,1.0),ratio=(1.0,1.0)),
+            #ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2),  # Randomly adjust color
             ToTensor(),
             Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
         ])
