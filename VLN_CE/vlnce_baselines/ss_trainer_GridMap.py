@@ -175,7 +175,6 @@ class SSTrainer(BaseVLNCETrainer):
         if 'GridMap' in self.config.MODEL.policy_name:
             if self.config.DATASET == 'R2R':
                 lang_idx_tokens = batch['instruction']
-
                 padding_idx = 0
                 all_lang_masks = (lang_idx_tokens != padding_idx)
 
@@ -236,8 +235,8 @@ class SSTrainer(BaseVLNCETrainer):
             if hasattr(self.policy.net, 'module'):
                 policy_net = self.policy.net.module
 
+            batch_size = len(observations)
             if stepk == 0:
-                batch_size = len(observations)
                 policy_net.start_positions = positions
                 policy_net.start_headings = [(heading+2*math.pi)%(2*math.pi) for heading in headings]
                 policy_net.global_fts = [[] for i in range(batch_size)]
@@ -435,6 +434,19 @@ class SSTrainer(BaseVLNCETrainer):
                         # if 'CMA' in self.config.MODEL.policy_name:
                         #     rnn_states = pop_helper(rnn_states, i)
                         observations.pop(i)
+                        policy_net.start_positions.pop(i)
+                        policy_net.start_headings.pop(i)
+                        policy_net.global_fts.pop(i)
+                        policy_net.global_position_x.pop(i)
+                        policy_net.global_position_y.pop(i)
+                        policy_net.global_mask.pop(i)
+                        policy_net.max_x.pop(i)
+                        policy_net.min_x.pop(i)
+                        policy_net.max_y.pop(i)
+                        policy_net.min_y.pop(i)
+                        policy_net.global_map_index.pop(i)
+                        policy_net.traj_embeds.pop(i)
+                        policy_net.traj_map.pop(i)
 
                         shift_index += 1
 
